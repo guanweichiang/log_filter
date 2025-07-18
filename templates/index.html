@@ -10,7 +10,7 @@
     <!-- 左側：上傳與顯示原始 log -->
     <div class="left" id="drop_zone">
       <h2>Drag & Drop Log File</h2>
-      <pre id="raw_content">No data</pre>
+      <ol id="raw_content" class="line-numbered">No data</ol>
     </div>
 
     <!-- 右側：管理多個 filter 與呈現結果 -->
@@ -24,7 +24,7 @@
         <!-- 動態產生的 filter 列表，每筆 filter 可點選刪除 -->
       </ul>
       <h2>Results</h2>
-      <pre id="filtered_content">No data</pre>
+      <ol id="filtered_content" class="line-numbered">No data</ol>
     </div>
   </div>
 
@@ -65,7 +65,7 @@
       .then(data => {
         if (data.success) {
           rawText = data.content;
-          rawContent.textContent = rawText;
+          updateRawContent(rawText);
           // 當有新的檔案時，重設 filter 與 filter 列表
           filters = [];
           updateFilterList();
@@ -106,16 +106,30 @@
       });
     }
 
-    // 傳送目前 rawText 與 filters 到後端進行篩選
+    // 更新篩選結果（帶行號）
     function updateFilteredContent() {
       fetch('/filter', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: rawText, filters: filters })
       })
       .then(res => res.json())
       .then(data => {
-        filteredContent.textContent = data.filtered;
+        filteredContent.innerHTML = "";
+        data.filtered.forEach(entry => {
+          const li = document.createElement('li');
+          li.textContent = `[${entry.line_number}] ${entry.text}`;
+          filteredContent.appendChild(li);
+        });
+      });
+    }
+    // 更新原始 log 顯示（帶行號）
+    function updateRawContent(text) {
+      rawContent.innerHTML = "";
+      text.split("\n").forEach(line => {
+        const li = document.createElement('li');
+        li.textContent = line;
+        rawContent.appendChild(li);
       });
     }
   </script>

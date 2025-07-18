@@ -64,3 +64,19 @@ pre {
   cursor: pointer;
   padding: 2px 6px;
 }
+.line-numbered {
+  background: #eee;
+  padding: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  list-style-type: decimal; /* 顯示行號 */
+  margin: 0;
+  padding-left: 40px; /* 給行號留空間 */
+}
+.line-numbered li {
+  white-space: pre-wrap;
+  font-family: 'Courier New', Courier, monospace;
+}
+
