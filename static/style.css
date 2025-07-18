@@ -1,0 +1,38 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  display: flex;
+  height: 100vh;
+}
+.left, .right {
+  flex: 1;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+.left {
+  border-right: 2px solid #ccc;
+  background: #f9f9f9;
+}
+#drop_zone {
+  border: 2px dashed #aaa;
+  padding: 10px;
+  min-height: 100px;
+  transition: border-color 0.3s;
+}
+pre {
+  background: #eee;
+  padding: 10px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}

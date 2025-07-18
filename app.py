@@ -1,0 +1,40 @@
+from flask import Flask, render_template, request, jsonify
+import os
+
+app = Flask(__name__)
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'log', 'txt'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    file = request.files.get('file')
+    if file and allowed_file(file.filename):
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(filepath)
+        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        return jsonify({"success": True, "content": content})
+    return jsonify({"success": False, "message": "Invalid file"})
+
+@app.route('/filter', methods=['POST'])
+def filter_content():
+    data = request.get_json()
+    full_text = data.get('content', '')
+    keyword = data.get('keyword', '').strip()
+    if keyword:
+        filtered_lines = "\n".join(line for line in full_text.splitlines() if keyword in line)
+    else:
+        filtered_lines = full_text
+    return jsonify({"filtered": filtered_lines})
+
+if __name__ == '__main__':
+    app.run(debug=True)

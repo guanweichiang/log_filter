@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Log Viewer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <div class="left" id="drop_zone">
+      <h2>拖曳Log檔到此</h2>
+      <pre id="raw_content">尚未載入檔案</pre>
+    </div>
+    <div class="right">
+      <h2>Filter</h2>
+      <input type="text" id="filter_input" placeholder="輸入要篩選的關鍵字">
+      <pre id="filtered_content">尚未載入資料</pre>
+    </div>
+  </div>
+
+  <script>
+    let rawText = "";
+
+    document.getElementById('drop_zone').addEventListener('dragover', function(e) {
+      e.preventDefault();
+      this.style.borderColor = '#555';
+    });
+
+    document.getElementById('drop_zone').addEventListener('drop', function(e) {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          rawText = data.content;
+          document.getElementById('raw_content').textContent = rawText;
+          document.getElementById('filtered_content').textContent = rawText;
+        } else {
+          alert(data.message);
+        }
+      });
+    });
+
+    document.getElementById('filter_input').addEventListener('input', function() {
+      fetch('/filter', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ content: rawText, keyword: this.value })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('filtered_content').textContent = data.filtered;
+      });
+    });
+  </script>
+</body>
+</html>

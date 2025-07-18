@@ -1,0 +1,10 @@
+2025-07-18 10:15:03,128 - INFO - system.init - System initialization started
+2025-07-18 10:15:04,239 - INFO - system.check - All dependencies verified
+2025-07-18 10:15:05,452 - WARNING - system.memory - Memory usage exceeds 75%
+2025-07-18 10:15:06,121 - INFO - auth.login - User 'admin' logged in
+2025-07-18 10:15:07,333 - ERROR - db.connection - Failed to connect to database (timeout)
+2025-07-18 10:15:08,914 - INFO - retry - Retrying database connection (attempt 1/3)
+2025-07-18 10:15:09,532 - INFO - db.connection - Database connection established
+2025-07-18 10:15:10,147 - INFO - task.runner - Scheduled task 'backup' started
+2025-07-18 10:15:12,885 - INFO - task.runner - Task 'backup' completed successfully
+2025-07-18 10:15:13,678 - INFO - auth.logout - User 'admin' logged out
