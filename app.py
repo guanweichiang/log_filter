@@ -29,9 +29,13 @@ def upload_file():
 def filter_content():
     data = request.get_json()
     full_text = data.get('content', '')
-    keyword = data.get('keyword', '').strip()
-    if keyword:
-        filtered_lines = "\n".join(line for line in full_text.splitlines() if keyword in line)
+    # 取得 filter 陣列，預期為字串列表
+    filters = data.get('filters', [])
+    if filters:
+        def line_match(line):
+            # 若行中至少包含其中一個 filter，即回傳 True
+            return all(f in line for f in filters)
+        filtered_lines = "\n".join(line for line in full_text.splitlines() if line_match(line))
     else:
         filtered_lines = full_text
     return jsonify({"filtered": filtered_lines})

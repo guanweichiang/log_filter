@@ -22,6 +22,7 @@ body {
   padding: 10px;
   min-height: 100px;
   transition: border-color 0.3s;
+  text-align: left;
 }
 pre {
   background: #eee;
@@ -31,8 +32,35 @@ pre {
   max-height: 80vh;
   overflow-y: auto;
 }
-input[type="text"] {
-  width: 100%;
-  padding: 10px;
+.filter-input {
+  display: flex;
+  gap: 10px;
   margin-bottom: 10px;
+}
+.filter-input input[type="text"] {
+  flex: 1;
+  padding: 8px;
+}
+.filter-input button {
+  padding: 8px 12px;
+}
+#filter_list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px 0;
+}
+#filter_list li {
+  padding: 5px;
+  background-color: #ddd;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#filter_list li button {
+  background: #ff6b6b;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 2px 6px;
 }

@@ -2,31 +2,56 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Log Viewer</title>
+  <title>Log Viewer with Multi-Filter</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <div class="container">
+    <!-- 左側：上傳與顯示原始 log -->
     <div class="left" id="drop_zone">
-      <h2>拖曳Log檔到此</h2>
-      <pre id="raw_content">尚未載入檔案</pre>
+      <h2>Drag & Drop Log File</h2>
+      <pre id="raw_content">No data</pre>
     </div>
+
+    <!-- 右側：管理多個 filter 與呈現結果 -->
     <div class="right">
-      <h2>Filter</h2>
-      <input type="text" id="filter_input" placeholder="輸入要篩選的關鍵字">
-      <pre id="filtered_content">尚未載入資料</pre>
+      <h2>Filter List</h2>
+      <div class="filter-input">
+        <input type="text" id="filter_input" placeholder="輸入 filter 關鍵字">
+        <button id="add_filter_btn">ADD Filter</button>
+      </div>
+      <ul id="filter_list">
+        <!-- 動態產生的 filter 列表，每筆 filter 可點選刪除 -->
+      </ul>
+      <h2>Results</h2>
+      <pre id="filtered_content">No data</pre>
     </div>
   </div>
 
   <script>
     let rawText = "";
+    let filters = [];
 
-    document.getElementById('drop_zone').addEventListener('dragover', function(e) {
+    // 取得 DOM 元素
+    const dropZone = document.getElementById('drop_zone');
+    const rawContent = document.getElementById('raw_content');
+    const filteredContent = document.getElementById('filtered_content');
+    const filterInput = document.getElementById('filter_input');
+    const addFilterBtn = document.getElementById('add_filter_btn');
+    const filterList = document.getElementById('filter_list');
+
+    // 拖曳上傳事件
+    dropZone.addEventListener('dragover', function(e) {
       e.preventDefault();
       this.style.borderColor = '#555';
     });
 
-    document.getElementById('drop_zone').addEventListener('drop', function(e) {
+    dropZone.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      this.style.borderColor = '#aaa';
+    });
+
+    dropZone.addEventListener('drop', function(e) {
       e.preventDefault();
       const file = e.dataTransfer.files[0];
       const formData = new FormData();
@@ -40,25 +65,59 @@
       .then(data => {
         if (data.success) {
           rawText = data.content;
-          document.getElementById('raw_content').textContent = rawText;
-          document.getElementById('filtered_content').textContent = rawText;
+          rawContent.textContent = rawText;
+          // 當有新的檔案時，重設 filter 與 filter 列表
+          filters = [];
+          updateFilterList();
+          updateFilteredContent();
         } else {
           alert(data.message);
         }
       });
     });
 
-    document.getElementById('filter_input').addEventListener('input', function() {
+    // 新增 filter 按鈕點擊事件
+    addFilterBtn.addEventListener('click', function() {
+      const keyword = filterInput.value.trim();
+      if (keyword && !filters.includes(keyword)) {
+        filters.push(keyword);
+        filterInput.value = "";
+        updateFilterList();
+        updateFilteredContent();
+      }
+    });
+
+    // 更新 filter 列表的顯示
+    function updateFilterList() {
+      filterList.innerHTML = "";
+      filters.forEach((filter, index) => {
+        const li = document.createElement('li');
+        li.textContent = filter + " ";
+        // 加入刪除按鈕
+        const delBtn = document.createElement('button');
+        delBtn.textContent = "刪除";
+        delBtn.addEventListener('click', function() {
+          filters.splice(index, 1);
+          updateFilterList();
+          updateFilteredContent();
+        });
+        li.appendChild(delBtn);
+        filterList.appendChild(li);
+      });
+    }
+
+    // 傳送目前 rawText 與 filters 到後端進行篩選
+    function updateFilteredContent() {
       fetch('/filter', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ content: rawText, keyword: this.value })
+        body: JSON.stringify({ content: rawText, filters: filters })
       })
       .then(res => res.json())
       .then(data => {
-        document.getElementById('filtered_content').textContent = data.filtered;
+        filteredContent.textContent = data.filtered;
       });
-    });
+    }
   </script>
 </body>
 </html>
