@@ -36,7 +36,10 @@
 
   <script>
     let rawText = "";
-    let filters = [];
+    let filters = [
+      { text: 'error', enabled: true },
+      { text: 'fail', enabled: true }
+    ];
 
     // 取得 DOM 元素
     const dropZone = document.getElementById('drop_zone');
@@ -85,8 +88,8 @@
     // 新增 filter 按鈕點擊事件
     addFilterBtn.addEventListener('click', function() {
       const keyword = filterInput.value.trim();
-      if (keyword && !filters.includes(keyword)) {
-        filters.push(keyword);
+      if (keyword && !filters.some(f => f.text === keyword)) {
+        filters.push({ text: keyword, enabled: true }); // 新增物件
         filterInput.value = "";
         updateFilterList();
         updateFilteredContent();
@@ -96,17 +99,33 @@
     // 更新 filter 列表的顯示
     function updateFilterList() {
       filterList.innerHTML = "";
-      filters.forEach((filter, index) => {
+      filters.forEach((filterObj, index) => {
         const li = document.createElement('li');
-        li.textContent = filter + " ";
-        // 加入刪除按鈕
+
+        // checkbox
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = filterObj.enabled;
+        checkbox.addEventListener('change', function() {
+          filters[index].enabled = this.checked;
+          updateFilteredContent();
+        });
+
+        // label
+        const span = document.createElement('span');
+        span.textContent = " " + filterObj.text + " ";
+
+        // delete button
         const delBtn = document.createElement('button');
-        delBtn.textContent = "刪除";
+        delBtn.textContent = "DEL";
         delBtn.addEventListener('click', function() {
           filters.splice(index, 1);
           updateFilterList();
           updateFilteredContent();
         });
+
+        li.appendChild(checkbox);
+        li.appendChild(span);
         li.appendChild(delBtn);
         filterList.appendChild(li);
       });
@@ -116,12 +135,15 @@
     function updateFilteredContent() {
       const caseSensitive = document.getElementById('case_sensitive_toggle').checked;
 
+      // 只傳送啟用的條件文字
+      const activeFilters = filters.filter(f => f.enabled).map(f => f.text);
+
       fetch('/filter', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           content: rawText,
-          filters: filters,
+          filters: activeFilters,
           case_sensitive: caseSensitive
         })
       })
