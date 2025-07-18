@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import os
+import re
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
@@ -27,23 +28,28 @@ def upload_file():
 
 @app.route('/filter', methods=['POST'])
 def filter_content():
+    import re
+
     data = request.get_json()
     full_text = data.get('content', '')
     filters = data.get('filters', [])
+    case_sensitive = data.get('case_sensitive', False)
+
+    flags = 0 if case_sensitive else re.IGNORECASE
+
+    try:
+        regexes = [re.compile(f, flags) for f in filters]
+    except re.error as e:
+        return jsonify({"success": False, "message": f"Regex Error: {e}"})
 
     result_lines = []
-    if filters:
-        def line_match(line):
-            return all(f in line for f in filters)
 
-        for idx, line in enumerate(full_text.splitlines(), start=1):
-            if line_match(line):
-                result_lines.append({'line_number': idx, 'text': line})
-    else:
-        for idx, line in enumerate(full_text.splitlines(), start=1):
+    for idx, line in enumerate(full_text.splitlines(), start=1):
+        if all(r.search(line) for r in regexes):
             result_lines.append({'line_number': idx, 'text': line})
 
-    return jsonify({"filtered": result_lines})
+    return jsonify({"success": True, "filtered": result_lines})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

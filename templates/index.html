@@ -17,8 +17,14 @@
     <div class="right">
       <h2>Filter List</h2>
       <div class="filter-input">
-        <input type="text" id="filter_input" placeholder="輸入 filter 關鍵字">
+        <input type="text" id="filter_input" placeholder="輸入 regex 關鍵字（例如 error|fail）">
         <button id="add_filter_btn">ADD Filter</button>
+      </div>
+      <div style="margin: 10px 0;">
+        <label>
+          <input type="checkbox" id="case_sensitive_toggle">
+          Case Sensitive
+        </label>
       </div>
       <ul id="filter_list">
         <!-- 動態產生的 filter 列表，每筆 filter 可點選刪除 -->
@@ -108,13 +114,24 @@
 
     // 更新篩選結果（帶行號）
     function updateFilteredContent() {
+      const caseSensitive = document.getElementById('case_sensitive_toggle').checked;
+
       fetch('/filter', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: rawText, filters: filters })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          content: rawText,
+          filters: filters,
+          case_sensitive: caseSensitive
+        })
       })
       .then(res => res.json())
       .then(data => {
+        if (!data.success) {
+          filteredContent.innerHTML = `[Error] ${data.message}`;
+          return;
+        }
+
         filteredContent.innerHTML = "";
         data.filtered.forEach(entry => {
           const li = document.createElement('li');
@@ -123,6 +140,7 @@
         });
       });
     }
+
     // 更新原始 log 顯示（帶行號）
     function updateRawContent(text) {
       rawContent.innerHTML = "";
@@ -132,6 +150,12 @@
         rawContent.appendChild(li);
       });
     }
+
+    // 勾選/取消 "Case Sensitive" 時，自動更新篩選結果
+    document.getElementById('case_sensitive_toggle').addEventListener('change', function() {
+      updateFilteredContent();
+    });
+    
   </script>
 </body>
 </html>

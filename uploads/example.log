@@ -1,10 +1,10 @@
-2025-07-18 10:15:03,128 - INFO - system.init - System initialization started
-2025-07-18 10:15:04,239 - INFO - system.check - All dependencies verified
-2025-07-18 10:15:05,452 - WARNING - system.memory - Memory usage exceeds 75%
-2025-07-18 10:15:06,121 - INFO - auth.login - User 'admin' logged in
-2025-07-18 10:15:07,333 - ERROR - db.connection - Failed to connect to database (timeout)
-2025-07-18 10:15:08,914 - INFO - retry - Retrying database connection (attempt 1/3)
-2025-07-18 10:15:09,532 - INFO - db.connection - Database connection established
-2025-07-18 10:15:10,147 - INFO - task.runner - Scheduled task 'backup' started
-2025-07-18 10:15:12,885 - INFO - task.runner - Task 'backup' completed successfully
-2025-07-18 10:15:13,678 - INFO - auth.logout - User 'admin' logged out
+2024-07-18 09:00:00 INFO  [System] Server started successfully.
+2025-07-18 09:00:05 DEBUG [Auth] Checking user credentials...
+2025-07-18 09:00:06 INFO  [Auth] User 'alice' authenticated.
+2025-07-18 09:01:00 WARN  [Storage] Disk space low: 2.3GB remaining.
+2025-07-18 09:01:30 ERROR [Database] Connection timeout after 5s.
+2025-07-18 09:01:35 INFO  [Retry] Retrying database connection...
+2025-07-18 09:01:40 ERROR [Database] Connection failed again.
+2025-07-18 09:02:00 DEBUG [Heartbeat] Server is alive.
+2025-07-18 09:03:00 INFO  [System] Backup completed successfully.
+2025-07-18 09:04:00 WARN  [Network] Packet loss detected.
